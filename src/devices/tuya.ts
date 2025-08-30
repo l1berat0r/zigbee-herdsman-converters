@@ -125,13 +125,15 @@ const storeLocal = {
                     // Only publish if the set is complete otherwise discard everything.
                     if (sign !== null && power !== null && current !== null && powerFactor !== null) {
                         const signedPowerKey = `signed_power_${channel}`;
+                        const invertedEnergyFlowKey = `invert_energy_flow_${channel}`;
                         const signedPower = options[signedPowerKey] != null ? options[signedPowerKey] : false;
+                        const invertedEnergyFlow = options[invertedEnergyFlowKey] != null ? options[invertedEnergyFlowKey] : false;
                         if (signedPower) {
                             result[`power_${channel}`] = sign * power;
                             result[`energy_flow_${channel}`] = "sign";
                         } else {
                             result[`power_${channel}`] = power;
-                            result[`energy_flow_${channel}`] = sign > 0 ? "consuming" : "producing";
+                            result[`energy_flow_${channel}`] = sign * (invertedEnergyFlow ? -1 : 1) > 0 ? "consuming" : "producing";
                         }
                         result[`timestamp_${channel}`] = this[`timestamp_${channel}`];
                         result[`current_${channel}`] = current;
@@ -13699,6 +13701,8 @@ export const definitions: DefinitionWithExtend[] = [
             e
                 .binary("signed_power_b", ea.SET, true, false)
                 .withDescription("Report energy flow direction for channel B using signed power (default false)."),
+            e.binary("invert_energy_flow_a", ea.SET, true, false).withDescription("Report energy flow direction inverted for channel A."),
+            e.binary("invert_energy_flow_b", ea.SET, true, false).withDescription("Report energy flow direction inverted for channel B."),
         ],
         exposes: [
             e.ac_frequency(),
