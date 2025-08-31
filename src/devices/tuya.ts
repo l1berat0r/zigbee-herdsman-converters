@@ -252,6 +252,32 @@ const convLocal = {
         };
     },
 
+    energyForwardPJ1203A: (channel: string) => {
+        return {
+            from: (v: number, meta: Fz.Meta, options: KeyValue) => {
+                const invertedEnergyFlowKey = `invert_energy_flow_${channel}`;
+                const result_key = options[invertedEnergyFlowKey] ? `energy_produced_${channel}` : `energy_${channel}`;
+                const result = {} as KeyValueAny;
+                result[result_key] = v / 100;
+
+                return result;
+            },
+        };
+    },
+
+    energyReversePJ1203A: (channel: string) => {
+        return {
+            from: (v: number, meta: Fz.Meta, options: KeyValue) => {
+                const invertedEnergyFlowKey = `invert_energy_flow_${channel}`;
+                const result_key = options[invertedEnergyFlowKey] ? `energy_${channel}` : `energy_produced_${channel}`;
+                const result = {} as KeyValueAny;
+                result[result_key] = v / 100;
+
+                return result;
+            },
+        };
+    },
+
     sceneCubeAction: () => {
         const lookup = ["side_1", "side_2", "side_3", "side_4", "knock", "shake"];
         const expose = e.action(lookup);
@@ -13750,10 +13776,10 @@ export const definitions: DefinitionWithExtend[] = [
                 [102, null, convLocal.energyFlowPJ1203A("a")], // energy_flow_a or the sign of power_a
                 [104, null, convLocal.energyFlowPJ1203A("b")], // energy_flow_b or the sign of power_b
                 [115, null, convLocal.powerAbPJ1203A()],
-                [106, "energy_a", tuya.valueConverter.divideBy100],
-                [108, "energy_b", tuya.valueConverter.divideBy100],
-                [107, "energy_produced_a", tuya.valueConverter.divideBy100],
-                [109, "energy_produced_b", tuya.valueConverter.divideBy100],
+                [106, null, convLocal.energyForwardPJ1203A("a")],
+                [108, null, convLocal.energyForwardPJ1203A("b")],
+                [107, null, convLocal.energyReversePJ1203A("a")],
+                [109, null, convLocal.energyReversePJ1203A("b")],
                 [129, "update_frequency", tuya.valueConverter.raw],
             ],
         },
